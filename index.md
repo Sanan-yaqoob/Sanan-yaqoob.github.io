@@ -25,6 +25,7 @@ Analysed e-commerce order data to investigate revenue trends, state-level perfor
 **Tools:** Python, Pandas, Matplotlib, Seaborn
 
 [View Project on GitHub](https://github.com/Sanan-yaqoob/sales-analysis)
+[Project Details](https://github.com/Sanan-yaqoob/Sanan-yaqoob.github.io/blob/main)/projects/ecommerce-sales-analysis/)
 
 ### 3. Python & SQL ETL Pipeline
 
