@@ -1,3 +1,7 @@
+---
+title: E-commerce Sales Analysis
+permalink: /projects/ecommerce-sales-analysis/
+---
 # E-commerce Sales Analysis
 
 **A Python data analysis project exploring sales performance, product categories, customer satisfaction, and delivery performance using Brazilian e-commerce data.**
