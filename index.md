@@ -24,8 +24,6 @@ Analysed e-commerce order data to investigate revenue trends, state-level perfor
 
 **Tools:** Python, Pandas, Matplotlib, Seaborn
 
-[View Project on GitHub](https://github.com/Sanan-yaqoob/sales-analysis) 
-
 [Project Details](projects/ecommerce-sales-analysis/)
 
 ### 3. Python & SQL ETL Pipeline
@@ -50,7 +48,7 @@ Explored handwritten signature verification by extracting image features and com
 
 **Tools:** MATLAB, Feature Extraction, Support Vector Machines (SVM), Logistic Regression, K-Nearest Neighbours
 
-[Project Details](projects/signature-verification/)
+[Project Details](/projects/signature-verification/)
 
 ## Contact
 
