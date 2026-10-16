@@ -44,13 +44,13 @@ Developed a computer vision project exploring facial landmarks and eye-related f
 
 [View Project on GitHub](https://github.com/Sanan-yaqoob/Driver-Detection-System)
 
-### 5. Handwritten Signature Verification
+### 5. Handwritten Signature Forgery Detection
 
 Explored handwritten signature verification by extracting image features and comparing machine learning approaches to distinguish genuine signatures from possible forgeries.
 
 **Tools:** MATLAB, Feature Extraction, Support Vector Machines (SVM), Logistic Regression, K-Nearest Neighbours
 
-[View Project on GitHub](https://github.com/Sanan-yaqoob/signature-forgery-detection)
+[Project Details](projects/signature-verification/)
 
 ## Contact
 
