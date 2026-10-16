@@ -10,21 +10,21 @@ I have an MSc in Data Science and a background in software development, I am bui
 
 ## Projects
 
-### 1. Live Weather Dashboard
-
-Developed an interactive dashboard using live weather data from the Open-Meteo API. The dashboard displays current weather conditions, hourly temperature trends, precipitation probability, and a seven-day forecast.
-
-**Tools:** Python, Pandas, Plotly, Streamlit, API Integration
-
-[View Project on GitHub](https://github.com/Sanan-yaqoob/live-weather-dashboard)
-
-### 2. E-commerce Sales Analysis
+### 1. E-commerce Sales Analysis
 
 Analysed e-commerce order data to investigate revenue trends, state-level performance, product category performance, customer review scores, and delivery delays. Generated summary datasets and visualisations to communicate the findings.
 
 **Tools:** Python, Pandas, Matplotlib, Seaborn
 
 [Project Details](projects/ecommerce-sales-analysis/)
+
+### 2. Handwritten Signature Forgery Detection
+
+Explored handwritten signature verification by extracting image features and comparing machine learning approaches to distinguish genuine signatures from possible forgeries.
+
+**Tools:** MATLAB, Feature Extraction, Support Vector Machines (SVM), Logistic Regression, K-Nearest Neighbours
+
+[Project Details](projects/signature-forgery-detection/)
 
 ### 3. Python & SQL ETL Pipeline
 
@@ -42,16 +42,16 @@ Developed a computer vision project exploring facial landmarks and eye-related f
 
 [View Project on GitHub](https://github.com/Sanan-yaqoob/Driver-Detection-System)
 
-### 5. Handwritten Signature Forgery Detection
+### 5. Live Weather Dashboard
 
-Explored handwritten signature verification by extracting image features and comparing machine learning approaches to distinguish genuine signatures from possible forgeries.
+Developed an interactive dashboard using live weather data from the Open-Meteo API. The dashboard displays current weather conditions, hourly temperature trends, precipitation probability, and a seven-day forecast.
 
-**Tools:** MATLAB, Feature Extraction, Support Vector Machines (SVM), Logistic Regression, K-Nearest Neighbours
+**Tools:** Python, Pandas, Plotly, Streamlit, API Integration
 
-[Project Details](projects/signature-forgery-detection/)
+[View Project on GitHub](https://github.com/Sanan-yaqoob/live-weather-dashboard)
 
 ## Contact
 
 I am interested in junior opportunities in data science and data analysis where I can apply my technical background, continue learning, and contribute to practical data projects.
 
-[Connect with me on LinkedIn](https://www.linkedin.com/in/sanan-yaqoob/) | [Visit my GitHub](https://github.com/Sanan-yaqoob)
+[Connect with me on LinkedIn](https://www.linkedin.com/in/sanan-yaqoob/)
