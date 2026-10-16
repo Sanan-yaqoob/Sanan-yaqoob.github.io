@@ -1,0 +1,437 @@
+---
+title: Handwritten Signature Forgery Detection
+permalink: /projects/signature-forgery-detection/
+---
+
+# Handwritten Signature Forgery Detection Using MATLAB
+
+## Project Overview
+
+This project investigates whether machine learning can distinguish between genuine handwritten signatures and forged signatures using image processing, statistical analysis, and classification algorithms.
+
+Rather than feeding the raw signature images directly into a deep learning model, the project extracts numerical characteristics from each image. These features are then used by three classifiers:
+
+- Support Vector Machine (SVM)
+- Logistic Regression
+- K-Nearest Neighbours (k-NN)
+
+The models are evaluated using accuracy, precision, recall, and F1 score. Visualisations and confusion matrices help explain where each classifier performs well and where it makes mistakes.
+
+**Technologies:** MATLAB, image processing, feature engineering, statistical analysis, SVM, Logistic Regression, k-NN.
+
+[View the complete project on GitHub](https://github.com/Sanan-yaqoob/signature-forgery-detection)
+
+---
+
+## Project Workflow
+
+The project follows a sequence of data preparation, feature engineering, model training, and evaluation.
+
+1. Load and organise genuine and forged signature images.
+2. Convert each image into a numerical feature vector.
+3. Analyse feature distributions using descriptive and inferential statistics.
+4. Visualise the extracted features in two and three dimensions.
+5. Normalise the feature values using the training dataset.
+6. Train and test three classification approaches.
+7. Compare the models using evaluation metrics and confusion matrices.
+
+This workflow demonstrates how image data can be converted into structured data suitable for traditional machine learning.
+
+---
+
+## Data Preparation and Labelling
+
+The main script, `handwriting.m`, organises the images into training and testing directories. Genuine signatures are assigned label `0`, while forged signatures are assigned label `1`.
+
+```matlab
+trainDir = 'Train';
+testDir = 'Test';
+
+originalTrainDir = fullfile(trainDir, 'original');
+forgeTrainDir = fullfile(trainDir, 'forge');
+
+originalTestDir = fullfile(testDir, 'original');
+forgeTestDir = fullfile(testDir, 'forge');
+```
+
+`fullfile` constructs paths in a way that is compatible with the operating system. Separating genuine and forged samples makes it possible to assign labels consistently.
+
+```matlab
+trainFeatures = [];
+trainLabels = [];
+
+originalTrainFiles = dir( ...
+    fullfile(originalTrainDir, '*.jpg'));
+
+for i = 1:length(originalTrainFiles)
+
+    imgPath = fullfile( ...
+        originalTrainFiles(i).folder, ...
+        originalTrainFiles(i).name);
+
+    img = imread(imgPath);
+    features = extractImageFeatures(img);
+
+    trainFeatures = [trainFeatures; features];
+    trainLabels = [trainLabels; 0];
+
+end
+```
+
+For every genuine training image, the script reads the image, calls the feature-extraction function, appends the resulting numerical vector to `trainFeatures`, and records its class label in `trainLabels`.
+The forged images are processed similarly, but receive label `1`.
+A classifier needs both input features and known labels during supervised training. The labels tell the algorithm which class each training example belongs to.
+The script also creates a separate test dataset. Keeping training and testing data separate allows the models to be evaluated on samples that were not used to fit them.
+
+---
+
+## Feature Extraction and Image Processing
+
+Feature extraction is a central part of this project. A handwritten signature contains visual information such as stroke edges and texture. The project converts selected characteristics of that information into numerical values.
+The function `extractImageFeatures.m` performs the following operations:
+
+- Converts RGB images to grayscale where necessary.
+- Converts pixel values to double precision.
+- Detects edges using the Canny method.
+- Calculates texture properties using a Gray-Level Co-occurrence Matrix (GLCM).
+- Combines these measurements into a feature vector.
+
+### Actual feature-extraction
+
+```matlab
+function features = extractImageFeatures(img)
+
+    % Convert to grayscale if needed
+    if size(img, 3) == 3
+        img = rgb2gray(img);
+    end
+
+    % Normalise image pixel values
+    img = im2double(img);
+
+    % Detect edges using the Canny method
+    edges = edge(img, 'Canny');
+
+    % Calculate texture using a GLCM
+    glcm = graycomatrix(img, ...
+        'Offset', [0 1; -1 1; -1 0; -1 -1]);
+
+    stats = graycoprops(glcm, ...
+        {'Contrast', 'Correlation', ...
+         'Energy', 'Homogeneity'});
+
+    % Combine the measurements into a feature vector
+    features = [mean(edges(:)), ...
+        stats.Contrast, ...
+        stats.Correlation, ...
+        stats.Energy, ...
+        stats.Homogeneity];
+
+end
+```
+
+```matlab
+img = rgb2gray(img);
+```
+If the image is RGB, this converts it into a single intensity channel. This reduces unnecessary colour information because the project focuses on signature shape and texture.
+
+```matlab
+img = im2double(img);
+```
+This converts image values to double precision and, for standard integer images, scales intensities to a range between 0 and 1.
+
+```matlab
+edges = edge(img, 'Canny');
+```
+The Canny algorithm identifies changes in image intensity that may correspond to signature strokes and their boundaries. The mean of the resulting edge map provides a simple summary of edge density.
+
+```matlab
+stats = graycoprops(glcm, ...
+    {'Contrast', 'Correlation', ...
+     'Energy', 'Homogeneity'});
+```
+
+The GLCM describes how often pairs of grey-level values occur at specified spatial offsets.
+
+- **Contrast:** measures local intensity variation.
+- **Correlation:** measures relationships between neighbouring intensity values.
+- **Energy:** measures textural uniformity.
+- **Homogeneity:** measures how concentrated the co-occurring values are near the GLCM diagonal.
+
+The code uses four offsets. Each texture property therefore contributes multiple measurements, which are combined with the edge-density value to produce a 17-value feature vector.
+
+---
+
+## Statistical Analysis
+
+The project includes separate functions for descriptive and inferential statistics.
+
+### Descriptive statistics
+
+```matlab
+descriptiveStats = computeDescriptiveStats(trainFeatures);
+disp(descriptiveStats);
+```
+
+Descriptive statistics summarise the extracted training features. They help establish their typical values and variability before classification.
+For example, if a feature has a wide range of values, it may vary considerably across the samples. If a feature has a similar distribution for both classes, it may be less useful on its own for distinguishing genuine and forged signatures.
+
+### Inferential statistics
+
+```matlab
+[pValues, confIntervals] = ...
+    computeInferentialStats(trainFeatures, trainLabels);
+
+disp(pValues);
+disp(confIntervals);
+```
+
+The inferential analysis compares feature measurements across the two labelled classes. The function returns p-values and confidence intervals.
+A small p-value can provide evidence that a feature differs between the groups under the assumptions of the statistical test. However, statistical significance alone does not demonstrate that a feature will improve prediction on unseen signatures.
+These analyses help investigate the dataset before interpreting the machine learning results.
+
+---
+## 2-D Feature Visualisation
+
+The project uses a scatter plot to visualise the first two feature columns and colour the observations by class.
+
+
+```matlab
+function create2DVisualization(features, labels)
+
+    figure;
+
+    gscatter(features(:, 1), features(:, 2), ...
+        labels, 'br', 'xo', 8);
+
+    xlabel('Feature 1');
+    ylabel('Feature 2');
+
+    title('2D Scatter Plot with Encoded Labels');
+
+    legend('Original', 'Forge');
+    grid on;
+
+end
+```
+
+Source: [`create2DVisualization.m`](https://github.com/Sanan-yaqoob/signature-forgery-detection/blob/master/create2DVisualization.m)
+
+![Two-dimensional signature feature visualisation](https://raw.githubusercontent.com/Sanan-yaqoob/signature-forgery-detection/master/Figures/2D%20Plot.png)
+
+Each point represents a signature sample. The two axes correspond to the first and second extracted features, and the colours and markers distinguish the genuine and forged classes.
+- If the classes occupy different regions, these two features may help distinguish them.
+- If the classes overlap substantially, these features alone may not be sufficient.
+- Points from different classes in the same region indicate that a simple boundary using only these two dimensions may misclassify some samples.
+
+The scatter plot is exploratory. It shows only two of the feature dimensions, so it cannot establish whether the complete 17-feature representation separates the classes effectively.
+
+---
+
+## 3-D Feature Visualisation
+
+The project also creates a three-dimensional visualisation using three feature dimensions.
+
+![3-D signature feature visualisation](https://raw.githubusercontent.com/Sanan-yaqoob/signature-forgery-detection/master/Figures/3D%20Plot.png)
+
+A third feature adds another dimension in which the two classes may differ. A pattern that appears overlapped in a 2D projection might be easier to inspect in 3D.
+
+The key things to examine are:
+- Whether genuine and forged samples form visibly different groups.
+- How much overlap remains between the classes.
+- Whether there are outliers or groups of samples that do not follow the general pattern.
+
+Visual separation does not automatically mean a classifier will perform well. The model must generalise to the test samples, and the visualisation covers only a small subset of the available features.
+The project also includes a more complex visualisation function to explore the feature data from additional perspectives.
+
+---
+
+## Feature Normalisation
+
+Before training, the main script scales the features using the minimum and range calculated from the training data.
+
+```matlab
+trainMin = min(trainFeatures, [], 1);
+
+trainRange = max(trainFeatures, [], 1) - trainMin;
+
+trainRange(trainRange == 0) = 1;
+
+trainFeatures = ...
+    (trainFeatures - trainMin) ./ trainRange;
+
+testFeatures = ...
+    (testFeatures - trainMin) ./ trainRange;
+```
+
+Different features may have different numerical ranges. A feature with larger values could otherwise dominate distance calculations or affect how a model is fitted.
+This transformation scales the training feature values using their respective minimums and ranges. The same training-derived values are then applied to the test data.
+Using training statistics for both datasets is important: calculating a separate minimum and range from the test data would make the training and test representations inconsistent and could introduce evaluation leakage.
+Constant training features are handled by replacing a zero range with `1`, preventing division by zero.
+
+---
+
+## Support Vector Machine
+
+The Support Vector Machine (SVM) classifier attempts to find a decision boundary that separates the genuine and forged classes.
+This project uses a linear SVM. Its training function is `svmTrain.m`, and its prediction function is `svmPredict.m`.
+
+### Training and prediction
+
+```matlab
+svmModel = svmTrain(trainFeatures, trainLabels);
+
+predictedLabelsSVM = ...
+    svmPredict(testFeatures, svmModel);
+
+[accuracySVM, precisionSVM, recallSVM, f1ScoreSVM] = ...
+    evaluateMetrics(testLabels, predictedLabelsSVM);
+
+figure;
+confusionchart(testLabels, predictedLabelsSVM);
+title('SVM Confusion Matrix');
+```
+
+1. The training function learns a linear decision boundary from the labelled training features.
+2. The prediction function applies the fitted model to the test features.
+3. The evaluation function compares predicted labels against the actual test labels.
+4. A confusion matrix shows the counts of correct and incorrect predictions.
+
+In the implementation, labels are converted from `0` and `1` to `-1` and `+1` for SVM training. The project maps the results back to the genuine/forged class labels for evaluation.
+
+![SVM confusion matrix](https://raw.githubusercontent.com/Sanan-yaqoob/signature-forgery-detection/master/Figures/SVM%20Confusion%20Matrix.png)
+
+The confusion matrix compares the actual classes with the classes predicted by the SVM.
+
+- **True negatives:** genuine signatures correctly predicted as genuine.
+- **False positives:** genuine signatures incorrectly predicted as forged.
+- **False negatives:** forged signatures incorrectly predicted as genuine.
+- **True positives:** forged signatures correctly predicted as forged.
+
+Because forged signatures are labelled `1`, recall measures how many actual forged samples the model successfully identifies
+The reported recall is high at 95%, but the reported precision is 60%. This indicates that the model identifies a large proportion of forged samples, while a substantial proportion of samples flagged as forged are actually genuine. This trade-off is important when assessing a verification system.
+
+---
+
+## Logistic Regression
+
+Logistic Regression is a binary classification approach that estimates the probability of a sample belonging to a particular class.
+This project implements training and prediction separately using `logisticRegressionTrain.m` and `logisticRegressionPredict.m`. The training implementation includes ridge regularisation to help control model complexity.
+
+### Training and prediction
+
+```matlab
+logisticModel = ...
+    logisticRegressionTrain(trainFeatures, trainLabels);
+
+predictedLabelsLogistic = ...
+    logisticRegressionPredict(testFeatures, logisticModel);
+
+[accuracyLogistic, precisionLogistic, ...
+    recallLogistic, f1ScoreLogistic] = ...
+    evaluateMetrics(testLabels, predictedLabelsLogistic);
+
+figure;
+confusionchart(testLabels, predictedLabelsLogistic);
+title('Logistic Regression Confusion Matrix');
+```
+
+The training function learns coefficients from the labelled training examples. The prediction function uses the fitted coefficients to estimate the class for each test observation.
+Ridge regularisation penalises excessively large coefficients, which can help reduce model complexity. It does not guarantee better performance, but it provides a way to control the fitted model.
+Logistic Regression provides a useful comparison against the linear SVM because the two algorithms learn their decision rules differently.
+
+![Logistic Regression confusion matrix](https://raw.githubusercontent.com/Sanan-yaqoob/signature-forgery-detection/master/Figures/Logistic%20Regression%20Confusion%20Matrix.png)
+
+The confusion matrix reveals how many genuine signatures were classified correctly, how many forged signatures were detected, and how often the model confused the two classes.
+The reported recall is 68%, compared with 95% for the SVM. On these experimental results, Logistic Regression identifies a smaller proportion of actual forged samples.
+Its reported precision is 62%, slightly higher than the SVM's 60%. This suggests a different balance between identifying forgeries and avoiding false alarms. The confusion matrix provides the detailed counts behind this trade-off.
+
+---
+
+## K-Nearest Neighbours
+
+K-Nearest Neighbours (k-NN) classifies a test sample using the labels of nearby training samples.
+The project calculates Euclidean distances between feature vectors and uses the majority class among the nearest neighbours. The experiment uses `k = 100`.
+
+### Prediction and evaluation
+
+```matlab
+k = 100;
+
+predictedLabelsKNN = knnPredict( ...
+    trainFeatures, trainLabels, testFeatures, k);
+
+[accuracyKNN, precisionKNN, recallKNN, f1ScoreKNN] = ...
+    evaluateMetrics(testLabels, predictedLabelsKNN);
+
+figure;
+confusionchart(testLabels, predictedLabelsKNN);
+title(sprintf('k-NN Confusion Matrix (k = %d)', k));
+```
+
+1. Calculate the distance between a test sample and the training samples.
+2. Identify the `k` nearest training samples.
+3. Count their class labels.
+4. Assign the majority class to the test sample.
+
+Feature normalisation is particularly important for k-NN because it relies on distance calculations.
+The choice of `k` also affects the result. A large neighbourhood such as `k = 100` can smooth out local differences, while a smaller value may be more sensitive to individual samples. The best value should be selected using validation or cross-validation rather than relying only on test-set results.
+
+### k-NN confusion matrix
+
+![k-NN Confusion Matrix](https://raw.githubusercontent.com/Sanan-yaqoob/signature-forgery-detection/master/Figures/k-NN%20Confusion%20Matrix%20(k%20%3D%20100).png)
+
+The confusion matrix shows whether the majority-vote approach tends to classify signatures correctly or confuse genuine and forged samples.
+The reported recall is 69%, almost the same as Logistic Regression's 68%. This means that, in these experimental runs, k-NN detects a similar proportion of actual forged samples.
+Its accuracy is also 59%, so the current experiment does not show a clear accuracy advantage over Logistic Regression.
+
+---
+
+## Comparing the Three Models
+
+The project reports the following results from its experimental runs.
+
+| Model | Accuracy | Precision | Recall | F1 score |
+|---|---:|---:|---:|---:|
+| SVM | 62% | 60% | 95% | 73% |
+| Logistic Regression | 59% | 62% | 68% | 65% |
+| k-NN (`k = 100`) | 59% | 62% | 69% | 65% |
+
+### What do these metrics mean?
+
+- **Accuracy:** the proportion of all test predictions that are correct.
+- **Precision:** among samples predicted as forged, the proportion that are actually forged.
+- **Recall:** among all actual forged samples, the proportion correctly identified as forged.
+- **F1 score:** a single measure that balances precision and recall using their harmonic mean.
+
+### Key findings
+
+**SVM — strongest recall and F1 score**
+
+The SVM has the highest reported accuracy at 62% and the highest F1 score at 73%. Its recall of 95% suggests it detects most forged samples in this test run. However, precision of 60% means that many samples flagged as forged may be genuine.
+
+**Logistic Regression — slightly higher precision**
+
+Logistic Regression has 62% precision, compared with 60% for the SVM. Its recall is lower at 68%, meaning it misses a larger proportion of actual forgeries in these results.
+
+**k-NN — similar overall performance to Logistic Regression**
+
+With `k = 100`, k-NN achieves 59% accuracy, 62% precision, 69% recall, and 65% F1. It performs similarly to Logistic Regression, with a one-percentage-point higher recall in the reported results.
+
+### Overall assessment
+
+The SVM is the strongest of the three models according to the reported accuracy, recall, and F1 score. However, none of the results supports treating the system as a reliable, standalone signature-verification solution.
+The high SVM recall should not be interpreted in isolation. A real verification workflow must also consider false alarms, missed forgeries, dataset quality, and the consequences of incorrect decisions.
+The results are preliminary and may change with a different dataset, train/test split, or feature-extraction method.
+
+---
+
+### Potential improvements
+
+1. Evaluate multiple train/test splits and use cross-validation for model selection.
+2. Report the number of genuine and forged samples in each split.
+3. Investigate additional image features, including shape descriptors and stroke characteristics.
+4. Tune model parameters using validation data, leaving the test data for final evaluation.
+5. Compare precision, recall, F1 score, and confusion matrices alongside accuracy.
+6. Evaluate performance on signatures from writers not represented in the training set.
+7. Consider image-based approaches such as convolutional neural networks if a sufficiently large and representative dataset is available.
