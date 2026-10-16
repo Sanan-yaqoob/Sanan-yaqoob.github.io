@@ -48,7 +48,7 @@ Explored handwritten signature verification by extracting image features and com
 
 **Tools:** MATLAB, Feature Extraction, Support Vector Machines (SVM), Logistic Regression, K-Nearest Neighbours
 
-[Project Details](/projects/signature-forgery-detection/)
+[Project Details](projects/signature-forgery-detection/)
 
 ## Contact
 
